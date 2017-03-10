@@ -43,6 +43,9 @@ class Script { // eslint-disable-line
 				case 'Build Hook':
 					result = this.buildEvent(request.content);
 					break;
+				case 'Wiki Page Hook':
+					result = this.wikiPageEvent(request.content);
+					break;
 				default:
 					result = this.unknownEvent(request, event);
 					break;
@@ -289,6 +292,27 @@ See: ${data.object_attributes.url}`
 				icon_url: '',
 				attachments: [
 					makeAttachment(user, `build named *${data.build_name}* returned *${data.build_status}* for [${data.project_name}](${data.repository.homepage})`)
+				]
+			}
+		};
+	}
+
+	wikiPageEvent(data) {
+		const user = {
+			name: data.user_name,
+			avatar_url: data.user_avatar
+		};
+
+		return {
+			content: {
+				username: `gitlab/${data.project.name}`,
+				icon_url: data.project.avatar_url || data.user_avatar || '',
+				text: data.object_attributes.content,
+				attachments: [
+					makeAttachment(
+            					data.user, `${data.object_attributes.action} the wiki page _${data.object_attributes.title}_ on ${data.project.name}.
+See: ${data.object_attributes.url}`
+					)
 				]
 			}
 		};
